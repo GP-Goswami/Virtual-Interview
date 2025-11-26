@@ -1,0 +1,6 @@
+pymongo
+SpeechRecognition
+google-generativeai
+pyttsx3
+pypiwin32
+streamlit
