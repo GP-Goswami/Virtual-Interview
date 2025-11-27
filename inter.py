@@ -6,22 +6,20 @@ r = sr.Recognizer()
 
 
 
-# Microsoft developed speech API.
-engine = pyttsx3.init('sapi5')
-
-voices= engine.getProperty('voices') #getting details of current voice
-
-engine.setProperty('voice', voices[0].id)
 
 def speak(audio):
 
-    engine.say(audio) 
-
-    engine.runAndWait() #Without this command, speech will not be audible to us.
-    
+    engine = pyttsx3.init('sapi5')  # create fresh instance
+    voices = engine.getProperty('voices')
+    engine.setProperty('voice', voices[0].id)
+    engine.setProperty("rate", 170)
+    engine.say(audio)
+    engine.runAndWait()
+    engine.stop()
 # Reading Microphone as source
 # listening the speech and store in audio_text variable
 def takeaudio():
+    # return "hii"
     with sr.Microphone() as source:
         print("Lestening...")
         r.pause_threshold = 3

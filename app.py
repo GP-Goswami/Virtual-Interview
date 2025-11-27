@@ -1,7 +1,11 @@
 import streamlit as st
 import requests
 from inter import speak
-Api_url = "http://127.0.0.1:8000/interview-chat"
+import base64
+import threading
+
+endpoints=["user-input", "model-output"]
+Api_url = "http://127.0.0.1:8000/"
 st.set_page_config(page_title="AI Interview", layout="centered")
 
 # ----------- HEADER -------------
@@ -14,21 +18,77 @@ st.markdown("""
     </h3>
 """, unsafe_allow_html=True)
 
-# st.write("")
-# st.write("")
+st.write("")
+st.write("")
 
 
 def go_to(page_name):
     st.session_state["page"] = page_name
     st.rerun()
     
+# st.session_state["page"] = "frontInter"
+
+def user_input():
+    api= Api_url + endpoints[0]
+    speech = requests.get(api)
+    return speech
+
+def interview_reply(inter_id, inter_reply, resume):
+    api=Api_url + endpoints[1]
+    print(api)
     
-def interview_reply():
-    response1 = requests.post(Api_url, json = input_data)
-    response= response1.json()
-    return response
+    resume_content = resume.read()
+    resume_base64 = base64.b64encode(resume_content).decode("utf-8")
+    
+    input_data={
+        "interview_id" : inter_id,
+        "inter_reply" : inter_reply,
+        "resume" : resume_base64
+    }
+    ai_reply = requests.post(api, json = input_data)
+    # response= response1.json()
+    return ai_reply
+
+def animation():
+    st.markdown("""
+            <h1 style="text-align:center; color:#ED3B3B;">
+                Listening<span class="loading-dots"></span>
+            </h1>
+        """, unsafe_allow_html=True)
+
+    st.markdown(
+        "<h4 style='text-align:center; color:gray;'>Speak now, I am capturing your voice.</h4>",
+        unsafe_allow_html=True
+    )
+    st.markdown("""
+        <img class="mic" 
+            src="https://png.pngtree.com/png-vector/20250514/ourmid/pngtree-podcast-mic-png-image_16279107.png" 
+            width="180">
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    st.write("")
+    st.write("")
 
 
+states=["Recognising","Start", "Interview-Over"]
+def recognition():
+    st.markdown(f"""
+            <h1 style="text-align:center; color:#ED3B3B;">
+                Recognising
+            </h1>
+        """, unsafe_allow_html=True)
+
+    st.markdown("""
+        <img class="mis" 
+            src="https://png.pngtree.com/png-vector/20250514/ourmid/pngtree-podcast-mic-png-image_16279107.png" 
+            width="180">
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    st.write("")
+    st.write("")
+    
 # ------------ CARD CONTAINER -------------
 card = st.container()
 if "page" not in st.session_state:
@@ -52,6 +112,8 @@ if st.session_state["page"] == "home":
                                 "pdf", "docx"], label_visibility="visible")
 
         st.write("")
+        
+        inter_id=st.text_input("enter Interview ID:")
 
         # Centered Start Button
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -62,9 +124,10 @@ if st.session_state["page"] == "home":
         # Validation
         if start_btn:
             try:
-                if file:
+                if file and inter_id:
                     st.success("Your resume has been uploaded successfully!")
                     st.session_state["resume"] = file
+                    st.session_state["interId"] = inter_id
                     go_to("frontInter")
 
                     # redirect to another page
@@ -78,18 +141,22 @@ if st.session_state["page"] == "home":
         st.markdown("</div>", unsafe_allow_html=True)
 
 elif st.session_state["page"] == "frontInter":
-    # st.set_page_config(page_title="AI Interview — Listening", layout="centered", initial_sidebar_state="expanded" )
+    st.set_page_config(page_title="AI Interview — Listening", layout="centered", initial_sidebar_state="expanded" ) 
 
-    @st.dialog("Confirm Action")
-    def show_popup():
-        st.success("Are you sure you want to continue?")
-        if st.button("Yes, Continue"):
-            st.session_state["confirmed"] = True
-            st.rerun()
+    if "step" not in st.session_state:
+        st.session_state.step = "listen"     # listen → recognise → reply
+        st.session_state.his = []
+        st.session_state.turn = 0
+        st.session_state.total_turns = 2
+    
+    st.sidebar.markdown("""
+                <h2 style="color:#4A90E2;">💬 Interview Chat</h2>
+                <hr>
+                <p style="color:gray;">Your conversation will appear here.</p>
+            """, unsafe_allow_html=True)
 
-    st.write("Main Page")
-    if st.button("Open Popup"):
-        show_popup()
+        
+    # try:
     if "listening" not in st.session_state:
         st.session_state["listening"] = True
 
@@ -142,85 +209,75 @@ elif st.session_state["page"] == "frontInter":
 
         </style>
     """, unsafe_allow_html=True)
-
+    inter_reply=""
     # ----------- LISTENING TEXT WITH DOT ANIMATION ----------
-    # if st.session_state["listening"]:
-    #     dots_class = "loading-dots"
-    # else:
-    #     dots_class = ""   # no animation
 
-    
     dot_class = "loading-dots" if st.session_state["listening"] else ""
-    
-    st.markdown("""
-        <h1 style="text-align:center; color:#ED3B3B;">
-            Listening<span class="loading-dots"></span>
-        </h1>
-    """, unsafe_allow_html=True)
-
-    st.markdown(
-        "<h4 style='text-align:center; color:gray;'>Speak now, I am capturing your voice.</h4>",
-        unsafe_allow_html=True
-    )
-
-    st.write("")
-    st.write("")
-
-    # ----------- MIC IMAGE WITH PULSE ----------
     mic_class = "mic-pulse" if st.session_state["mic_active"] else ""
-    col1, col2, col3 = st.columns([1, 2, 1])
 
-    with col2:
-        st.markdown("""
-            <img class="mic" 
-                src="https://png.pngtree.com/png-vector/20250514/ourmid/pngtree-podcast-mic-png-image_16279107.png" 
-                width="180">
-        """, unsafe_allow_html=True)
-
-    # ---------- CONTROL BUTTONS ----------
-    st.write("")
-
-    c1, c2, c3 = st.columns([1, 2, 1])
-    with c2:
-        st.write("### Controls:")
-
-        # if st.button("🛑 Stop Listening"):
-        #     st.session_state["listening"] = False
-        #     st.session_state["mic_active"] = False
-        #     st.rerun()
+    if st.session_state.step == "listen":
         
-        val=st.text_input("enter Interview ID:")
+        """Asking Quesions to users"""
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            with st.container():  
+                animation()   
         
-
-        if st.button("🎙️ Start Listening"):
-            # st.session_state["listening"] = True
-            # st.session_state["mic_active"] = True
+        try:
+            userRes = user_input() 
+            inter_reply = userRes.json()
             
-            
-            input_data={
-                "interview_id":val
-            }
-            
-            if not val:
-                st.error("enter interviewId")
-            else:
-            
-                try:
-                    response=interview_reply(val) 
-                    
-                    if response.status_code==200:
-                        st.write(response)
-                except requests.exceptions.ConnectionError:
-                    st.info("can you tell again")
-            st.rerun()
-                    
+            if userRes.status_code==200:
+                st.sidebar.write(inter_reply)
                 
+            st.session_state.user_text = inter_reply
+            st.session_state.his.append(f'"user": {inter_reply}')
+            st.sidebar.write(st.session_state.his)
+            st.session_state.step = "recognise"
+            st.rerun()
+            
+        except requests.exceptions.ConnectionError:
+            st.info("can you tell again")
+    
+    if st.session_state.step == "recognise":
+        
+        """for stable recognition send request to ai model for user interview questions"""
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            with st.container(): 
+                recognition()
+        if "interId" and "resume" in st.session_state:
+            resume = st.session_state["resume"]
+            inter_id = st.session_state["interId"]
+            user = st.session_state.user_text
 
-    # ----------- RIGHT SIDEBAR ------------
-    st.sidebar.markdown("""
-        <h2 style="color:#4A90E2;">💬 Interview Chat</h2>
-        <hr>
-        <p style="color:gray;">Your conversation will appear here.</p>
-    """, unsafe_allow_html=True)
-    st.sidebar.write(interview_reply() )
-    speak(response)
+            try:
+                aiRes=interview_reply(inter_id, user, resume) 
+                ai_reply = aiRes.json()
+                
+                speak(ai_reply)
+                
+                if aiRes.status_code==200:
+                    st.session_state.his.append(f'"Interviewer" : {ai_reply}')
+                    st.sidebar.write(st.session_state.his)  
+                st.session_state.turn += 1
+                
+                
+                if st.session_state.turn > st.session_state.total_turns:
+                    st.write(st.session_state.turn,st.session_state.total_turns)
+                    st.success("Interview Completed!")
+                else:
+                    st.write(st.session_state.turn,st.session_state.total_turns)
+                    st.session_state.step = "listen"
+                    st.rerun()
+                
+            except requests.exceptions.ConnectionError:
+                st.error("Network error during recognition.")
+        else:
+            st.warning("resume or interviewId missing!")
+        
+        # NEXT TURN
+            
+    # except Exception as e:
+    #     st.error(f"error in streamlit is {e}")
+

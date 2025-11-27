@@ -13,7 +13,7 @@ collection = db["stud_inter"]
 # prompt="you are a Interviewer of the student you have to take interview based on student resume"
 
 # take user input and store to databases
-def human(interview_id, inter_reply):
+def human(interview_id, inter_reply, resume, job_info):
     try:
         existing = collection.find_one({"interview_id": interview_id})
         # print(type(existing), existing)
@@ -52,7 +52,7 @@ def human(interview_id, inter_reply):
 
         existing = collection.find_one({"interview_id": interview_id})
         print(existing)
-        reply = gem_res(existing)
+        reply = gem_res(existing, resume, job_info)
         print("reS1---->",reply)
 
         if reply or "Error is " not in reply:

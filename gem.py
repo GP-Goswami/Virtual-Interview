@@ -12,33 +12,24 @@ load_dotenv(dotenv_path)
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
-def gem_res(stud_data):
+def gem_res(stud_data , resume, job_info):
     try:
-    # his.append(
-    #     {
-    #         "role": "user",
-    #         "parts": [
-    #                 {"text": takeaudio()}
-    #         ]
-    #     }
-    # )
-    # stud=json.load(stud_data)
+        # return "hii, my name is Gautam"
         stud = stud_data
         # print("stud is---->",stud)
         if stud:
             his = stud["stud_info"]
             # print("his--->",his)
-            # return "testing"
 
             gem_response = client.models.generate_content(
                 model="gemini-2.0-flash",
                 contents=his,
                 config=types.GenerateContentConfig(
-                    system_instruction="""role: You are a Interviewer of candidates. You have to take it on the basis per resume and 
+                    system_instruction=f"""role: You are a Interviewer of candidates. You have to take it on the basis per resume and 
                     company need.
                     working: you have to take resume and read it and ask question related to resume and requirement
                     for requirement i will provide you link of company. You have read web and find out requirement
-                    inputs: resume, company{AI DEVELOPER}"""
+                    inputs: {resume}, company {job_info}"""
                 )
             )
             # inputs: resume{file}, company{https://www.naukri.com/job-listings-ai-ml-engineer-intern-vopa-pune-0-to-1-years-141125500865?src=jobsearchDesk&sid=1763831792236535&xp=1&px=1&nignbevent_src=jobsearchDeskGNB}"""
