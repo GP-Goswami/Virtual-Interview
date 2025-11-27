@@ -3,6 +3,8 @@ import json
 from pymongo import MongoClient
 from inter import takeaudio
 from gem import gem_res
+from config import interContinue
+
 client = MongoClient("mongodb://localhost:27017/")
 print("Connected successfully!")
 
@@ -32,6 +34,7 @@ def human(interview_id, inter_reply, resume, job_info):
 
             })
             # existing = collection.find_one({"interview_id": interview_id})
+            interContinue(interview_id)
 
         else:
             print("yes")

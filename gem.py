@@ -29,6 +29,9 @@ def gem_res(stud_data , resume, job_info):
                     company need.
                     working: you have to take resume and read it and ask question related to resume and requirement
                     for requirement i will provide you link of company. You have read web and find out requirement
+                    
+                    instruction:- you have only 5 turn to complete interview you have to complete interview in this 5 chance.
+                    at first time always ask about candidate introduction then proceed next
                     inputs: {resume}, company {job_info}"""
                 )
             )

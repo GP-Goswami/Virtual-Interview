@@ -33,15 +33,15 @@ def user_input():
     speech = requests.get(api)
     return speech
 
-def interview_reply(inter_id, inter_reply, resume):
+def interview_reply( inter_reply, resume):
     api=Api_url + endpoints[1]
     print(api)
     
     resume_content = resume.read()
     resume_base64 = base64.b64encode(resume_content).decode("utf-8")
-    
+    # "interview_id" : inter_id,
     input_data={
-        "interview_id" : inter_id,
+        
         "inter_reply" : inter_reply,
         "resume" : resume_base64
     }
@@ -113,7 +113,7 @@ if st.session_state["page"] == "home":
 
         st.write("")
         
-        inter_id=st.text_input("enter Interview ID:")
+        # inter_id=st.text_input("enter Interview ID:")
 
         # Centered Start Button
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -124,10 +124,10 @@ if st.session_state["page"] == "home":
         # Validation
         if start_btn:
             try:
-                if file and inter_id:
+                if file :
                     st.success("Your resume has been uploaded successfully!")
                     st.session_state["resume"] = file
-                    st.session_state["interId"] = inter_id
+                    # st.session_state["interId"] = inter_id
                     go_to("frontInter")
 
                     # redirect to another page
@@ -155,6 +155,8 @@ elif st.session_state["page"] == "frontInter":
                 <p style="color:gray;">Your conversation will appear here.</p>
             """, unsafe_allow_html=True)
 
+    st.sidebar.write("hello! How are you.")
+    # speak("hello! How are you.")
         
     # try:
     if "listening" not in st.session_state:
@@ -213,7 +215,7 @@ elif st.session_state["page"] == "frontInter":
     # ----------- LISTENING TEXT WITH DOT ANIMATION ----------
 
     dot_class = "loading-dots" if st.session_state["listening"] else ""
-    mic_class = "mic-pulse" if st.session_state["mic_active"] else ""
+    mic_class = "mic-pulse" if st.session_state["mic_active"] else "" 
 
     if st.session_state.step == "listen":
         
@@ -246,13 +248,14 @@ elif st.session_state["page"] == "frontInter":
         with col2:
             with st.container(): 
                 recognition()
-        if "interId" and "resume" in st.session_state:
+        if "resume" in st.session_state:
             resume = st.session_state["resume"]
-            inter_id = st.session_state["interId"]
+            # inter_id = st.session_state["interId"]
             user = st.session_state.user_text
 
             try:
-                aiRes=interview_reply(inter_id, user, resume) 
+                aiRes=interview_reply(user, resume) 
+                print("D----",aiRes)
                 ai_reply = aiRes.json()
                 
                 speak(ai_reply)

@@ -4,7 +4,7 @@ from inter import takeaudio,speak
 from pydantic import BaseModel, ConfigDict, ValidationError
 from fastapi.responses import FileResponse
 from database import human
-
+from config import retriveid
 
 interview_id = ""
 job_info="AI Developer"
@@ -27,7 +27,7 @@ async def favicon():
 
 
 class interRequire(BaseModel):
-    interview_id    : str
+    # interview_id    : str
     inter_reply : str
     resume : str
     # model_config = ConfigDict(extra='forbid')
@@ -40,7 +40,11 @@ async def aiInter(interData : interRequire):
     try:
         # inter_reply = takeaudio()
         # speak(inter_reply)
-        gem_res = human(interData.interview_id, interData.inter_reply, interData.resume, job_info)
+        interview_id=""
+        if retriveid()!="":
+            interview_id=retriveid()
+            print("interview_id", interview_id)
+        gem_res = human(interview_id, interData.inter_reply, interData.resume, job_info)
         
         if gem_res is None:
             raise ValueError("human() returned None")
