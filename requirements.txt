@@ -51,7 +51,6 @@ pydantic_core==2.41.5
 pydeck==0.9.1
 pymongo==4.15.4
 pyparsing==3.2.5
-pypiwin32==223
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
 pyttsx3==2.99
@@ -81,4 +80,5 @@ urllib3==2.5.0
 uvicorn==0.38.0
 watchdog==6.0.0
 websockets==15.0.1
+
 
