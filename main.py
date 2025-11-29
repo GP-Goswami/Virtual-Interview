@@ -55,12 +55,10 @@ async def aiInter(interData : interRequire):
         if retriveid()!="":
             global interview_id
             interview_id=retriveid()
-            print("interview_id", interview_id)
         gem_res = human(interview_id, interData.inter_reply, interData.resume, job_info)
         
         if gem_res is None:
             raise ValueError("human() returned None")
-        print("gem_res",gem_res)
         return gem_res
     except ValidationError as exc:
         print(repr(exc.errors()[0]['type']))

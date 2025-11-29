@@ -18,7 +18,6 @@ def user_input():
 
 def interview_reply( inter_reply, resume):
     api=Api_url + endpoints[1]
-    print(api)
     
     resume_content = resume.read()
     resume_base64 = base64.b64encode(resume_content).decode("utf-8")
@@ -58,7 +57,6 @@ def getInter():
 
 def speak(reply):
     api=Api_url + endpoints[3]
-    print(api)
     
     input_data={
         
@@ -271,7 +269,6 @@ elif st.session_state.screen == "frontInter":
                     if st.session_state.turn==0:
                         st.sidebar.write(" **Interviewer:-** Hello! How are you.")
                         speak("Hello! How are you.")
-                    print(st.session_state.step)
                     
                     st.session_state.step = "listen"
                     st.rerun()
@@ -298,6 +295,8 @@ elif st.session_state.screen == "frontInter":
                         # if userRes.status_code==200:
                         #     st.sidebar.write(inter_reply)
                             
+                        if st.session_state.turn == 0:
+                                st.sidebar.write(f" **You:-** {inter_reply}")
                         st.session_state.user_text = inter_reply
                         st.session_state.step = "recognise"
                         st.rerun()
@@ -308,24 +307,25 @@ elif st.session_state.screen == "frontInter":
                 if st.session_state.step == "recognise":
                     
                     """for stable recognition send request to ai model for user interview questions"""
-                    print("<-------------mai yaha aaya hu----------->")
+                   
                     col1, col2, col3 = st.columns([1, 2, 1])
                     with col2:
                         with st.container(): 
                             recognition(states[1])
                     if "resume" in st.session_state:
                         resume = st.session_state["resume"]
-                        # inter_id = st.session_state["interId"]
                         user = st.session_state.user_text
 
                         try:
                             aiRes=interview_reply(user, resume) 
-                            print("D----",aiRes)
                             ai_reply = aiRes.json()
                             
                             interNext = checkId(st.session_state.get("interConfigId"))
-                            print("inter----->history ", st.session_state.get("interConfigId"))
                             
+                            if st.session_state.turn == 0:
+                                st.sidebar.write(f" **You:-** {user}")
+                                st.sidebar.write(f" **Interviewer:-** {ai_reply}")
+                                
                             if interNext:
                                 stud_data = interNext["stud_info"]
                                 st.sidebar.write("**Interviewer:-** hello! How are you.")
@@ -335,18 +335,13 @@ elif st.session_state.screen == "frontInter":
                                         st.sidebar.write(f" **You:-** {chat['parts'][0]['text']}")
                                     else:
                                         st.sidebar.write(f" **Interviewer:-** {chat['parts'][0]['text']}")
-                            
-                            # if aiRes.status_code==200:
-                                # st.session_state.his.append(f'"Interviewer" : {ai_reply}')
-                                # st.sidebar.write(f'**Interviewer:-**  {ai_reply}')  
+                             
                             st.session_state.turn += 1
-                            print(st.session_state.turn)
                             speak(ai_reply)
                             st.session_state["interConfigId"] = getInter().json() 
                             
                             if st.session_state.turn > st.session_state.total_turns:
                                 st.write(st.session_state.turn,st.session_state.total_turns)
-                                print(st.session_state.turn)
                                 st.success("Interview Completed!")
                             else:
                                 st.write(st.session_state.turn,st.session_state.total_turns)

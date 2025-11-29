@@ -1,11 +1,23 @@
 import uuid
 import json
+import os
 from pymongo import MongoClient
 from inter import takeaudio
 from gem import gem_res
 from config import interContinue
+from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-client = MongoClient("mongodb://localhost:27017/")
+dotenv_path = find_dotenv()
+load_dotenv(dotenv_path)
+
+MONGO_USERNAME = os.getenv("MONGO_USERNAME")
+MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+cluster_name = os.getenv("cluster_name")
+mongodb_uri = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@cluster0.vspaxpf.mongodb.net/?appName={cluster_name}"
+print("url is ",mongodb_uri, MONGO_USERNAME,MONGO_PASSWORD,cluster_name)
+
+client = MongoClient(mongodb_uri)
 print("Connected successfully!")
 
 db = client["interview"]
@@ -15,32 +27,27 @@ collection = db["stud_inter"]
 def checkId(interview_id):
     foundId = collection.find_one({"interview_id": interview_id})
     return foundId
-# prompt="you are a Interviewer of the student you have to take interview based on student resume"
 
 # take user input and store to databases
 def human(interview_id, inter_reply, resume, job_info):
     try:
         existing = checkId(interview_id)
-        # print(type(existing), existing)
+        # (type(existing), existing)
         if not existing:
             interview_id = str(uuid.uuid4())
-            print("existing", interview_id)
             collection.insert_one({
                 "interview_id": interview_id,
                 "stud_info": [{
                     "role": "user",
                     "parts": [
                             {"text": inter_reply}
-                            # {"text": "Hii my name is Gautam Goswami"}
                     ]
                 }]
 
             })
-            # existing = collection.find_one({"interview_id": interview_id})
             interContinue(interview_id)
 
         else:
-            print("yes")
             collection.update_one(
                 {"interview_id": interview_id},
                 {"$push":
@@ -49,7 +56,6 @@ def human(interview_id, inter_reply, resume, job_info):
                             "role": "user",
                             "parts": [
                                 {"text": inter_reply}
-                                # {"text": "hii how are you"}
                             ]
                         }
                     }
@@ -57,9 +63,7 @@ def human(interview_id, inter_reply, resume, job_info):
             )
 
         existing = checkId(interview_id)
-        print(existing)
         reply = gem_res(existing, resume, job_info)
-        print("reS1---->",reply)
 
         if reply or "Error is " not in reply:
             collection.update_one(
@@ -75,14 +79,13 @@ def human(interview_id, inter_reply, resume, job_info):
                  }
                  }
             )
-        # return (inter_reply, reply)
         return (reply)
     except Exception as e:
         print(f"error is {e}")
 
 
 if __name__ == "__main__":
-    interview_id = "2c6bd84f-8971-459c-bf1b-c7e699b5066f"
+    interview_id = ""
     inter_reply = takeaudio()
     while inter_reply != "exit":
         interview = human(interview_id, inter_reply)
