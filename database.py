@@ -12,12 +12,15 @@ db = client["interview"]
 collection = db["stud_inter"]
 
 
+def checkId(interview_id):
+    foundId = collection.find_one({"interview_id": interview_id})
+    return foundId
 # prompt="you are a Interviewer of the student you have to take interview based on student resume"
 
 # take user input and store to databases
 def human(interview_id, inter_reply, resume, job_info):
     try:
-        existing = collection.find_one({"interview_id": interview_id})
+        existing = checkId(interview_id)
         # print(type(existing), existing)
         if not existing:
             interview_id = str(uuid.uuid4())
@@ -53,7 +56,7 @@ def human(interview_id, inter_reply, resume, job_info):
                  }
             )
 
-        existing = collection.find_one({"interview_id": interview_id})
+        existing = checkId(interview_id)
         print(existing)
         reply = gem_res(existing, resume, job_info)
         print("reS1---->",reply)

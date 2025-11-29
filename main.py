@@ -17,6 +17,11 @@ def readbot():
     inter_reply = takeaudio()
     return inter_reply
 
+@app.get("/interviewId")
+def getInterid():
+    inter = retriveid()
+    return inter
+
 @app.get("/")
 def readbot():
     return "I am bot"
@@ -26,22 +31,29 @@ async def favicon():
     return FileResponse("static/favicon.ico")
 
 
+class speakAudio(BaseModel):
+    interviewerReply : str
+    
+@app.post("/speakAns")
+async def speakAI(speakData : speakAudio):
+    try:
+        if speakData.interviewerReply!="":
+            speak(speakData.interviewerReply)
+        return "done"
+    except Exception as e:
+        return f"error in speakai {e}"
+
+
 class interRequire(BaseModel):
-    # interview_id    : str
     inter_reply : str
     resume : str
-    # model_config = ConfigDict(extra='forbid')
-    
-# class ChatResponse(BaseModel):
-#     reply: str
+  
     
 @app.post("/model-output")
 async def aiInter(interData : interRequire):
     try:
-        # inter_reply = takeaudio()
-        # speak(inter_reply)
-        interview_id=""
         if retriveid()!="":
+            global interview_id
             interview_id=retriveid()
             print("interview_id", interview_id)
         gem_res = human(interview_id, interData.inter_reply, interData.resume, job_info)
@@ -49,8 +61,6 @@ async def aiInter(interData : interRequire):
         if gem_res is None:
             raise ValueError("human() returned None")
         print("gem_res",gem_res)
-        # speak(gem_res)
-        # return ChatResponse(reply=gem_res)
         return gem_res
     except ValidationError as exc:
         print(repr(exc.errors()[0]['type']))

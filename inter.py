@@ -19,10 +19,10 @@ def speak(audio):
 # Reading Microphone as source
 # listening the speech and store in audio_text variable
 def takeaudio():
-    # return "hii"
+    # return "hii,how are you"
     with sr.Microphone() as source:
         print("Lestening...")
-        r.pause_threshold = 3
+        r.pause_threshold = 1
         r.energy_threshold = 600 
         audio_text = r.listen(source)
         print("Time over, thanks")

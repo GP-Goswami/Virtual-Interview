@@ -14,7 +14,7 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 def gem_res(stud_data , resume, job_info):
     try:
-        # return "hii, my name is Gautam"
+        # return "I am fine, my name is Gautam"
         stud = stud_data
         # print("stud is---->",stud)
         if stud:
