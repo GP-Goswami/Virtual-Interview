@@ -32,6 +32,9 @@ This gives users an experience similar to facing a real interviewer.
 ### 3. Install Dependencies
       `pip install -r requirements.txt`
 
+---
+
+
 ## Usage
 ### 1. Start the Streamlit Frontend
 `streamlit run app.py`
@@ -46,6 +49,8 @@ If not, go to:
 
 `http://localhost:8501`
 
+---
+
 ## Project Purpose
 
 1. The main purpose of this project is to provide:
@@ -58,6 +63,9 @@ If not, go to:
 
 5. Practical, hands-on experience with interview-style communication
 
+---
+
 ## Contact
 
 **Email:** gautamgoswami290602@gmail.com
+
