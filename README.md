@@ -14,6 +14,7 @@ The application aims to remove hesitation, improve communication confidence, and
 
 This gives users an experience similar to facing a real interviewer.
 
+NOTE:- I also attach docker file but know it's not working.
 ---
 
 ## Installation
@@ -53,19 +54,20 @@ If not, go to:
 
 ## Project Purpose
 
-1. The main purpose of this project is to provide:
+The main purpose of this project is to provide:
 
-2. Realistic AI-based interview practice
+1. Realistic AI-based interview practice
 
-3. Improved fluency & confidence
+2. Improved fluency & confidence
 
-4. Reduced hesitation while facing real interviews
+3. Reduced hesitation while facing real interviews
 
-5. Practical, hands-on experience with interview-style communication
+4. Practical, hands-on experience with interview-style communication
 
 ---
 
 ## Contact
 
 **Email:** gautamgoswami290602@gmail.com
+
 
